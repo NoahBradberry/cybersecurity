@@ -1,6 +1,10 @@
 import tkinter as tk
 from tkextrafont import Font
 import random
+import string
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 200
@@ -14,7 +18,7 @@ TITLE_COLOR = "#0EA5E9"
 
 root = tk.Tk()
 root.title("Example")
-root.geometry("800x600")
+root.geometry(f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 root.configure(bg = BACKGROUND_COLOR)
 
 
@@ -30,8 +34,9 @@ def generate_password():
     char_count_text = tk.Label(root, text = "Number of Characters:", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
     char_count_text.place(x = 50, y = 100)
 
-    char_count = tk.Entry(root)
-    char_count.place(x = 360, y = 111, width = 30)
+    char_count = tk.IntVar()
+    char_count_entry_box = tk.Entry(root, textvariable = char_count)
+    char_count_entry_box.place(x = 360, y = 111, width = 30)
 
     lowercase_letters = tk.BooleanVar()
     lowercase_letters_box = tk.Checkbutton(root, text = "Lowercase Letters?", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white", activebackground = BACKGROUND_COLOR, activeforeground = "white", selectcolor = BACKGROUND_COLOR, variable = lowercase_letters)
@@ -48,6 +53,30 @@ def generate_password():
     special_characters = tk.BooleanVar()
     special_characters_box = tk.Checkbutton(root, text = "Special Characters?", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white", activebackground = BACKGROUND_COLOR, activeforeground = "white", selectcolor = BACKGROUND_COLOR, variable = special_characters)
     special_characters_box.place(x = 50, y = 300)
+
+    make_password_button = tk.Button(root, text = "Make Password", command =  lambda: make_password(lowercase_letters, uppercase_letters, numbers, special_characters), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    make_password_button.place(x = SCREEN_WIDTH // 2 - 150 , y = 375, width = 300)
+
+def make_password(lowercase_letters, uppercase_letters, numbers, special_characters):
+    
+    possible_characters = ""
+    error_text.destroy()
+    
+    if lowercase_letters.get():
+        possible_characters += "abcdefghijklmnopqrstuvwxyz"
+    
+    if uppercase_letters.get():
+        possible_characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    if numbers.get():
+        possible_characters += "1234567890"
+
+    if special_characters.get():
+        possible_characters += string.punctuation
+
+    if possible_characters == "":
+        error_text = tk.Label(root, text = "Select at least one of the boxes", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = SCREEN_WIDTH // 2 - 210, y = 500, width = 420)
 
 
 def view_passwords():
