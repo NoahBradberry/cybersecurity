@@ -34,7 +34,7 @@ def generate_password():
     char_count_text = tk.Label(root, text = "Number of Characters:", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
     char_count_text.place(x = 50, y = 100)
 
-    char_count = tk.IntVar()
+    char_count = tk.StringVar()
     char_count_entry_box = tk.Entry(root, textvariable = char_count)
     char_count_entry_box.place(x = 360, y = 111, width = 30)
 
@@ -54,14 +54,14 @@ def generate_password():
     special_characters_box = tk.Checkbutton(root, text = "Special Characters?", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white", activebackground = BACKGROUND_COLOR, activeforeground = "white", selectcolor = BACKGROUND_COLOR, variable = special_characters)
     special_characters_box.place(x = 50, y = 300)
 
-    make_password_button = tk.Button(root, text = "Make Password", command =  lambda: make_password(lowercase_letters, uppercase_letters, numbers, special_characters), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    make_password_button = tk.Button(root, text = "Make Password", command =  lambda: make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     make_password_button.place(x = SCREEN_WIDTH // 2 - 150 , y = 375, width = 300)
 
-def make_password(lowercase_letters, uppercase_letters, numbers, special_characters):
+def make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count):
     
     possible_characters = ""
-    error_text.destroy()
     
+
     if lowercase_letters.get():
         possible_characters += "abcdefghijklmnopqrstuvwxyz"
     
@@ -73,10 +73,28 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
 
     if special_characters.get():
         possible_characters += string.punctuation
+    
+    error = find_error(possible_characters, char_count)
 
-    if possible_characters == "":
-        error_text = tk.Label(root, text = "Select at least one of the boxes", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
-        error_text.place(x = SCREEN_WIDTH // 2 - 210, y = 500, width = 420)
+    if error == 1:
+        error_text = tk.Label(root, text = "Select at least one of the boxes and input acceptable length", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+
+    if error == 2:
+        error_text = tk.Label(root, text = "Enter acceptable length", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+
+
+
+def find_error(possible_characters, char_count):
+    try:
+        char_count = char_count.get()
+    except ValueError:
+        return 2
+    if possible_characters == "" and char_count == 0:
+        return 1
+    
+        
 
 
 def view_passwords():
