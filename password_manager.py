@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkextrafont import Font
+
 import random
 import string
 
@@ -60,7 +60,8 @@ def generate_password():
 def make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count):
     
     possible_characters = ""
-    
+    try: error_text.destroy()
+    except: pass
 
     if lowercase_letters.get():
         possible_characters += "abcdefghijklmnopqrstuvwxyz"
@@ -77,22 +78,54 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
     error = find_error(possible_characters, char_count)
 
     if error == 1:
-        error_text = tk.Label(root, text = "Select at least one of the boxes and input acceptable length", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        try: error_text.destroy()
+        except: pass
+        error_text = tk.Label(root, text = "Enter acceptable length (8 - 30)", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
         error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
-
+    
     if error == 2:
-        error_text = tk.Label(root, text = "Enter acceptable length", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        try: error_text.destroy()
+        except: pass
+        error_text = tk.Label(root, text = "Select at least one of the boxes and input acceptable length (8 - 30)", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
         error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
 
+    if error == 3:
+        try: error_text.destroy()
+        except: pass
+        error_text = tk.Label(root, text = "Enter length between 8 and 30", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+    
+    if error == 4:
+        password = ""
+        char_count = int(char_count.get())
+        for i in range(char_count):
+            password = password + possible_characters[random.randint(0, len(possible_characters) - 1)]
+        
+        print(password)
+            
+
+
+    
 
 
 def find_error(possible_characters, char_count):
+#Error Codes: 1 - Char-count not int, 2 - invalid char_count and no character type selctions, 3 - No character type selections, 4 - No Error
+
     try:
-        char_count = char_count.get()
+        char_count = int(char_count.get())
     except ValueError:
+        if possible_characters == "":
+            return 2
+        else:
+            return 1
+    if possible_characters == "" and char_count < 7 or char_count > 30:
         return 2
-    if possible_characters == "" and char_count == 0:
-        return 1
+    if char_count < 7 or char_count > 30:
+        return 3
+    
+    return 4
+    
+    
     
         
 
