@@ -97,11 +97,61 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
     
     if error == 4:
         password = ""
+        
         char_count = int(char_count.get())
         for i in range(char_count):
             password = password + possible_characters[random.randint(0, len(possible_characters) - 1)]
-        
-        print(password)
+        if lowercase_letters.get():
+            if not check_lowercase(password):
+                password = ""
+                generate_password()
+        if uppercase_letters.get():
+            if not check_uppercase(password):
+                password = ""
+                generate_password()
+        if numbers.get():
+            if not check_number(password):
+                password = ""
+                generate_password()
+        if special_characters.get():
+            if not check_special(password):
+                password = ""
+                generate_password()
+
+
+
+            
+            
+
+
+def check_lowercase(password):
+    for char in password:
+        if char.islower():
+            return True
+    return False
+
+def check_uppercase(password):
+    for char in password:
+        if char.isupper():
+            return True
+    return False
+
+def check_number(password):
+    for char in password:
+        if char.isdigit():
+            return True
+    return False
+
+def check_special(password):
+    special_characters = string.punctuation
+    for char in password:
+        if char in special_characters():
+            return True
+    return False
+
+
+
+
             
 
 
