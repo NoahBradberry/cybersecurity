@@ -17,19 +17,19 @@ TITLE_COLOR = "#0EA5E9"
 
 
 root = tk.Tk()
-root.title("Example")
+root.title("Password Manager")
 root.geometry(f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 root.configure(bg = BACKGROUND_COLOR)
 
 
-title = tk.Label(root, text = "Password Manager", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
-title.pack()
+
 
 def generate_password():
-    title.configure(text = "Generate Password")
-    generate_password_button.destroy()
-    view_passwords_button.destroy()
-    add_passwords_button.destroy()
+    for widget in root.winfo_children():
+        widget.destroy()
+    
+    title = tk.Label(root, text = "Generate Password", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
 
     char_count_text = tk.Label(root, text = "Number of Characters:", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
     char_count_text.place(x = 50, y = 100)
@@ -57,6 +57,9 @@ def generate_password():
     make_password_button = tk.Button(root, text = "Make Password", command =  lambda: make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     make_password_button.place(x = SCREEN_WIDTH // 2 - 150 , y = 375, width = 300)
 
+    home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    home_button.place(x = 0, y = 0)
+
 def make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count):
     
     possible_characters = ""
@@ -78,88 +81,60 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
     error = find_error(possible_characters, char_count)
 
     if error == 1:
-        try: error_text.destroy()
-        except: pass
         error_text = tk.Label(root, text = "Enter acceptable length (8 - 30)", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
-        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+        error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
     
     if error == 2:
-        try: error_text.destroy()
-        except: pass
         error_text = tk.Label(root, text = "Select at least one of the boxes and input acceptable length (8 - 30)", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
-        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+        error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
 
     if error == 3:
-        try: error_text.destroy()
-        except: pass
         error_text = tk.Label(root, text = "Enter length between 8 and 30", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
-        error_text.place(x = 0, y = 500, width = SCREEN_WIDTH)
+        error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
     
     if error == 4:
+        error_text = tk.Label(root, text = "Select atleast one of the boxes", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
+    
+    if error == 5:
         password = ""
+        lowercase_pool = "abcdefghijklmnopqrstuv"
+        uppercase_pool = "ABCDEFGHIJKLMNOPQRSTUV"
+        numbers_pool = "1234567890"
+        special_pool = string.punctuation
         
         char_count = int(char_count.get())
-        for i in range(char_count):
-            password = password + possible_characters[random.randint(0, len(possible_characters) - 1)]
         if lowercase_letters.get():
-            if not check_lowercase(password):
-                password = ""
-                generate_password()
+            password = password + lowercase_pool[random.randint(0, len(lowercase_pool) - 1)]
+            char_count -= 1
         if uppercase_letters.get():
-            if not check_uppercase(password):
-                password = ""
-                generate_password()
+            password = password + uppercase_pool[random.randint(0, len(uppercase_pool) - 1)]
+            char_count -= 1
         if numbers.get():
-            if not check_number(password):
-                password = ""
-                generate_password()
+            password = password + numbers_pool[random.randint(0, len(numbers_pool) - 1)]
+            char_count -= 1
         if special_characters.get():
-            if not check_special(password):
-                password = ""
-                generate_password()
+            password = password + special_pool[random.randint(0, len(special_pool) - 1)]
+            char_count -= 1
+        
+        for i in range(char_count):
+            password = password + possible_characters[random.randint(0, len(possible_characters) -1 )]
+        
+        password = list(password)
+        random.shuffle(password)
+        password = "".join(password)
+        
+        password_text = tk.Label(root, text = password, font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        password_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
 
+        copy_button = tk.Button(root, text = "Copy Password", command =  lambda: copy_to_clipboard(password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        copy_button.place(x = SCREEN_WIDTH // 2 - 150, y = 500, width = 300, height = 25)
 
-
-            
-            
-
-
-def check_lowercase(password):
-    for char in password:
-        if char.islower():
-            return True
-    return False
-
-def check_uppercase(password):
-    for char in password:
-        if char.isupper():
-            return True
-    return False
-
-def check_number(password):
-    for char in password:
-        if char.isdigit():
-            return True
-    return False
-
-def check_special(password):
-    special_characters = string.punctuation
-    for char in password:
-        if char in special_characters():
-            return True
-    return False
-
-
-
-
-            
-
-
-    
-
+        add_button = tk.Button(root, text = "Add to Manager", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        add_button.place(x = SCREEN_WIDTH // 2 - 150, y = 530, width = 300, height = 25)
 
 def find_error(possible_characters, char_count):
-#Error Codes: 1 - Char-count not int, 2 - invalid char_count and no character type selctions, 3 - No character type selections, 4 - No Error
+#Error Codes: 1 - Char-count not int, 2 - invalid char_count and no character type selctions, 3 - Invalid length, 4 - No character selection, 5 - No Error
 
     try:
         char_count = int(char_count.get())
@@ -168,12 +143,19 @@ def find_error(possible_characters, char_count):
             return 2
         else:
             return 1
-    if possible_characters == "" and char_count < 7 or char_count > 30:
+    if possible_characters == "" and (char_count < 7 or char_count > 30):
         return 2
     if char_count < 7 or char_count > 30:
         return 3
+    if possible_characters == "":
+        return 4
     
-    return 4
+    return 5
+
+def copy_to_clipboard(password):
+    root.clipboard_clear()
+    root.clipboard_append(password)
+    root.update()
     
     
     
@@ -181,28 +163,43 @@ def find_error(possible_characters, char_count):
 
 
 def view_passwords():
-    title.configure(text = "View Passwords")
-    generate_password_button.destroy()
-    view_passwords_button.destroy()
-    add_passwords_button.destroy()
+    for widget in root.winfo_children():
+        widget.destroy()
+    
+    title = tk.Label(root, text = "View Passwords", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
+
+    home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    home_button.place(x = 0, y = 0)
 
 def add_password():
-    title.configure(text = "Add Password")
-    generate_password_button.destroy()
-    view_passwords_button.destroy()
-    add_passwords_button.destroy()
+    for widget in root.winfo_children():
+        widget.destroy()
+    
+    title = tk.Label(root, text = "Add Password", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
 
-generate_password_button = tk.Button(root, text = "Generate\nPassword", command = generate_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Imter", 27, "bold"))
-generate_password_button.place(x = 50, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+    home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    home_button.place(x = 0, y = 0)
 
-view_passwords_button = tk.Button(root, text = "View\nPasswords", command = view_passwords, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
-view_passwords_button.place(x = 300, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+def home_screen():
+    for widget in root.winfo_children():
+        widget.destroy()
+    
+    title = tk.Label(root, text = "Password Manager", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
 
-add_passwords_button = tk.Button(root, text = "Add\nPassword", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
-add_passwords_button.place(x = 550, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+    generate_password_button = tk.Button(root, text = "Generate\nPassword", command = generate_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Imter", 27, "bold"))
+    generate_password_button.place(x = 50, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+
+    view_passwords_button = tk.Button(root, text = "View\nPasswords", command = view_passwords, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    view_passwords_button.place(x = 300, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+
+    add_passwords_button = tk.Button(root, text = "Add\nPassword", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    add_passwords_button.place(x = 550, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
 
 
 
-
+home_screen()
 root.mainloop()
