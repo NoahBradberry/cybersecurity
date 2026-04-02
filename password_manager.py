@@ -1,7 +1,8 @@
 import tkinter as tk
-
 import random
 import string
+import json
+import os
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -15,11 +16,45 @@ BUTTON_COLOR = "#22C55E"
 ACTIVE_BUTTON_COLOR = "#22C55E"
 TITLE_COLOR = "#0EA5E9"
 
+PASSWORDS_FILE = "passwords.json"
+
+
 
 root = tk.Tk()
 root.title("Password Manager")
 root.geometry(f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}")
 root.configure(bg = BACKGROUND_COLOR)
+
+def load_passwords():
+    if os.path.exists(PASSWORDS_FILE):
+        try:
+            with open(PASSWORDS_FILE, "r") as file:
+                return json.load(file)
+        except:
+            return {}
+    return {}
+
+passwords = load_passwords()
+
+def save_passwords(data):
+    with open(PASSWORDS_FILE, "w") as file:
+        json.dump(data, file, indent = 4)
+
+def add_password(site, username, password):
+    site = site.get().strip() 
+    username = username.get().strip() 
+    password = password.get().strip()
+
+    if site == "" or username == "" or password == "":
+        error_text = tk.Label(root, text = "Fill in all fields", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
+        return
+    
+    passwords[site] = {"username": username, "password": password}
+    save_passwords(passwords)
+
+    password_saved_text = tk.Label(root, text = "Password Saved", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    password_saved_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
 
 
 
@@ -172,7 +207,7 @@ def view_passwords():
     home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     home_button.place(x = 0, y = 0)
 
-def add_password():
+def add_password_screen():
     for widget in root.winfo_children():
         widget.destroy()
     
@@ -181,6 +216,32 @@ def add_password():
 
     home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     home_button.place(x = 0, y = 0)
+
+    site_entry_text = tk.Label(root, text = "Website: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    site_entry_text.place(x = 50, y = 100)
+
+    username_entry_text = tk.Label(root, text = "Username: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    username_entry_text.place(x = 50, y = 135)
+
+    password_entry_text = tk.Label(root, text = "Password: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    password_entry_text.place(x = 50, y = 170)
+
+    site = tk.StringVar()
+    site_entry = tk.Entry(root, textvariable = site)
+    site_entry.place(x = 170, y = 110, width = 300)
+
+    username = tk.StringVar()
+    username_entry = tk.Entry(root, textvariable = username)
+    username_entry.place(x = 200, y = 145, width = 300)
+
+    password = tk.StringVar()
+    password_entry = tk.Entry(root, textvariable = password, show = "*")
+    password_entry.place(x = 200, y = 180, width = 300)
+
+    save_button = tk.Button(root, text = "Save Password", command = lambda: add_password(site, username, password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+    save_button.place(x = SCREEN_WIDTH // 2 - 150 , y = 250, width = 300)
+
+
 
 def home_screen():
     for widget in root.winfo_children():
@@ -195,7 +256,7 @@ def home_screen():
     view_passwords_button = tk.Button(root, text = "View\nPasswords", command = view_passwords, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     view_passwords_button.place(x = 300, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
-    add_passwords_button = tk.Button(root, text = "Add\nPassword", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    add_passwords_button = tk.Button(root, text = "Add\nPassword", command = add_password_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     add_passwords_button.place(x = 550, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
 
