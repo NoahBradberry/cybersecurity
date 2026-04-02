@@ -162,10 +162,10 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
         password_text = tk.Label(root, text = password, font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
         password_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
 
-        copy_button = tk.Button(root, text = "Copy Password", command =  lambda: copy_to_clipboard(password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        copy_button = tk.Button(root, text = "Copy Password", command =  lambda: copy_to_clipboard(password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 14, "bold"))
         copy_button.place(x = SCREEN_WIDTH // 2 - 150, y = 500, width = 300, height = 25)
 
-        add_button = tk.Button(root, text = "Add to Manager", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        add_button = tk.Button(root, text = "Add to Manager", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 14, "bold"))
         add_button.place(x = SCREEN_WIDTH // 2 - 150, y = 530, width = 300, height = 25)
 
 def find_error(possible_characters, char_count):
@@ -192,10 +192,6 @@ def copy_to_clipboard(password):
     root.clipboard_append(password)
     root.update()
     
-    
-    
-        
-
 
 def view_passwords():
     for widget in root.winfo_children():
