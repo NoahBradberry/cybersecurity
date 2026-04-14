@@ -5,6 +5,7 @@ import random
 import string
 import json
 import os
+import hashlib
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -286,7 +287,7 @@ def login_screen():
     login_button = tk.Button(root, text = "Login", command = login, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     login_button.place(x = 150, y = 200, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
-    add_account_button = tk.Button(root, text = "Add\nAccount", command = add_account, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    add_account_button = tk.Button(root, text = "Add\nAccount", command = add_account_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     add_account_button.place(x = 400, y = 200, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
     home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
@@ -296,12 +297,14 @@ def login_screen():
 def login():
     pass
 
-def add_account():
+def add_account_screen():
     for widget in root.winfo_children():
         widget.destroy()
 
     title = tk.Label(root, text = "Add Account", font = ("Inter", 38, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
     title.pack()
+
+    
 
     username_entry_text = tk.Label(root, text = "Username: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
     username_entry_text.place(x = 50, y = 135)
@@ -317,11 +320,26 @@ def add_account():
     password_entry = tk.Entry(root, textvariable = password, show = "*")
     password_entry.place(x = 200, y = 180, width = 300)
 
-    login_button = tk.Button(root, text = "Login", command = check_login, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
-    login_button.place(x = 150, y = 200)
+    login_button = tk.Button(root, text = "Login", command = lambda: add_account(username, password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    login_button.place(x = SCREEN_WIDTH // 2 - 100, y = 250)
 
-    def check_login():
-        pass
+def add_account(username, password):
+    username = username.get().strip()
+    password = password.get().strip()
+
+    if username == "" or password == "":
+        error_text = tk.Label(root, text = "Fill in all fields", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        error_text.place(x = 0, y = 325, width = SCREEN_WIDTH)
+        return
+    
+    accounts[username] = hashlib.sha256(password.encode()).hexdigest()
+    save_accounts(accounts)
+    
+
+
+
+def check_login():
+    pass
 
 home_screen()
 root.mainloop()
