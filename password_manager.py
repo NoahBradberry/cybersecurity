@@ -1,3 +1,5 @@
+#TODO Accounts, hash account passwords, view passwords, improve passwords.json
+
 import tkinter as tk
 import random
 import string
@@ -17,6 +19,7 @@ ACTIVE_BUTTON_COLOR = "#22C55E"
 TITLE_COLOR = "#0EA5E9"
 
 PASSWORDS_FILE = "passwords.json"
+ACCOUNTS_FILE = "accounts.json"
 
 
 
@@ -34,10 +37,25 @@ def load_passwords():
             return {}
     return {}
 
+def load_accounts():
+    if os.path.exists(ACCOUNTS_FILE):
+        try:
+            with open(ACCOUNTS_FILE, "r") as file:
+                return json.load(file)
+        except:
+            return {}
+    return {}
+
 passwords = load_passwords()
+accounts = load_accounts()
+logged_in = False
 
 def save_passwords(data):
     with open(PASSWORDS_FILE, "w") as file:
+        json.dump(data, file, indent = 4)
+
+def save_accounts(data):
+    with open(ACCOUNTS_FILE, "w") as file:
         json.dump(data, file, indent = 4)
 
 def add_password(site, username, password):
@@ -165,7 +183,7 @@ def make_password(lowercase_letters, uppercase_letters, numbers, special_charact
         copy_button = tk.Button(root, text = "Copy Password", command =  lambda: copy_to_clipboard(password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 14, "bold"))
         copy_button.place(x = SCREEN_WIDTH // 2 - 150, y = 500, width = 300, height = 25)
 
-        add_button = tk.Button(root, text = "Add to Manager", command = add_password, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 14, "bold"))
+        add_button = tk.Button(root, text = "Add to Manager", command = add_password_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 14, "bold"))
         add_button.place(x = SCREEN_WIDTH // 2 - 150, y = 530, width = 300, height = 25)
 
 def find_error(possible_characters, char_count):
@@ -196,12 +214,17 @@ def copy_to_clipboard(password):
 def view_passwords():
     for widget in root.winfo_children():
         widget.destroy()
-    
-    title = tk.Label(root, text = "View Passwords", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
-    title.pack()
 
-    home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
-    home_button.place(x = 0, y = 0)
+    if logged_in == False:
+        login_screen()
+    
+    else:
+    
+        title = tk.Label(root, text = "View Passwords", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+        title.pack()
+
+        home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+        home_button.place(x = 0, y = 0)
 
 def add_password_screen():
     for widget in root.winfo_children():
@@ -255,8 +278,50 @@ def home_screen():
     add_passwords_button = tk.Button(root, text = "Add\nPassword", command = add_password_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
     add_passwords_button.place(x = 550, y = 150, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
 
+def login_screen():
+
+    title = tk.Label(root, text = "Login or Add Account", font = ("Inter", 38, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
+
+    login_button = tk.Button(root, text = "Login", command = login, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    login_button.place(x = 150, y = 200, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+
+    add_account_button = tk.Button(root, text = "Add\nAccount", command = add_account, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    add_account_button.place(x = 400, y = 200, width = BUTTON_WIDTH, height = BUTTON_HEIGHT)
+
+    home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    home_button.place(x = 0, y = 0)
 
 
+def login():
+    pass
+
+def add_account():
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    title = tk.Label(root, text = "Add Account", font = ("Inter", 38, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
+    title.pack()
+
+    username_entry_text = tk.Label(root, text = "Username: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    username_entry_text.place(x = 50, y = 135)
+
+    password_entry_text = tk.Label(root, text = "Password: ", font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+    password_entry_text.place(x = 50, y = 170)
+
+    username = tk.StringVar()
+    username_entry = tk.Entry(root, textvariable = username)
+    username_entry.place(x = 200, y = 145, width = 300)
+
+    password = tk.StringVar()
+    password_entry = tk.Entry(root, textvariable = password, show = "*")
+    password_entry.place(x = 200, y = 180, width = 300)
+
+    login_button = tk.Button(root, text = "Login", command = check_login, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
+    login_button.place(x = 150, y = 200)
+
+    def check_login():
+        pass
 
 home_screen()
 root.mainloop()
