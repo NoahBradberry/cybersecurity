@@ -50,6 +50,7 @@ def load_accounts():
 passwords = load_passwords()
 accounts = load_accounts()
 logged_in = False
+account = None
 
 def save_passwords(data):
     with open(PASSWORDS_FILE, "w") as file:
@@ -59,7 +60,7 @@ def save_accounts(data):
     with open(ACCOUNTS_FILE, "w") as file:
         json.dump(data, file, indent = 4)
 
-def add_password(site, username, password):
+def add_password(site, username, password, account):
     site = site.get().strip() 
     username = username.get().strip() 
     password = password.get().strip()
@@ -69,9 +70,10 @@ def add_password(site, username, password):
         error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
         return
     
-    if account 
+    if account not in passwords:
+        passwords[account] = {}
     
-    passwords[site] = {"username": username, "password": password}
+    passwords[account][site] = {"username": username, "password": password}
     save_passwords(passwords)
 
     password_saved_text = tk.Label(root, text = "Password Saved", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
@@ -114,6 +116,7 @@ def generate_password():
     home_button.place(x = 0, y = 0)
 
 def make_password(lowercase_letters, uppercase_letters, numbers, special_characters, char_count):
+    global account
     
     possible_characters = ""
     try: error_text.destroy()
@@ -211,21 +214,41 @@ def copy_to_clipboard(password):
     root.update()
     
 def view_passwords():
+    global password_list
     for widget in root.winfo_children():
         widget.destroy()
 
     if logged_in == False:
         login_or_add_account_screen()
-    
-    else:
-    
-        title = tk.Label(root, text = "View Passwords", font = ("Inter", 40, "bold"), bg = BACKGROUND_COLOR, fg = TITLE_COLOR)
-        title.pack()
+        return
 
-        home_button = tk.Button(root, text = "Home", command = home_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 27, "bold"))
-        home_button.place(x = 0, y = 0)
+    title = tk.Label(root, text="View Passwords", font=("Inter", 40, "bold"), bg=BACKGROUND_COLOR, fg=TITLE_COLOR)
+    title.pack()
+
+    home_button = tk.Button(root, text="Home", command=home_screen, bg=BUTTON_COLOR, font=("Inter", 27, "bold"))
+    home_button.place(x=0, y=0)
+
+    frame = tk.Frame(root, bg=BACKGROUND_COLOR)
+    frame.place(x=50, y=100, width=700, height=400)
+
+    scrollbar = tk.Scrollbar(frame, troughcolor = BACKGROUND_COLOR, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR)
+    scrollbar.pack(side="right", fill="y")
+
+    password_list = tk.Listbox(frame, bg = BACKGROUND_COLOR, fg = "white", selectbackground = BUTTON_COLOR, selectforeground = "white", yscrollcommand=scrollbar.set, font=("Inter", 14))
+    password_list.pack(side="left", fill="both", expand=True)
+    password_list.bind("<<ListboxSelect>>", click)
+
+    scrollbar.config(command=password_list.yview)
+
+    for site, info in passwords[account].items():
+        password_list.insert(
+            tk.END,
+            f"Website: {site} | Username: {info['username']} | Password: {info['password']}"
+        )
+
 
 def add_password_screen(pre_password):
+    global account
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -260,12 +283,11 @@ def add_password_screen(pre_password):
         password = tk.StringVar()
         password_entry = tk.Entry(root, textvariable = password, show = "*")
         password_entry.place(x = 200, y = 180, width = 300)
-        print(password)
 
         if pre_password != None:
             password_entry.insert(0, pre_password)
 
-        save_button = tk.Button(root, text = "Save Password", command = lambda: add_password(site, username, password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        save_button = tk.Button(root, text = "Save Password", command = lambda: add_password(site, username, password, account), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
         save_button.place(x = SCREEN_WIDTH // 2 - 150 , y = 250, width = 300)
 
 def home_screen():
@@ -290,6 +312,13 @@ def home_screen():
 
         add_account_button = tk.Button(root, text = "Add Account", command = add_account_screen, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
         add_account_button.place(x = 450, y = 500, width = BUTTON_WIDTH, height = 75)
+    
+    else:
+        logged_in_text = tk.Label(root, text = "Logged in: " + account, font = ("Inter", 20, "bold"), bg = BACKGROUND_COLOR, fg = "white")
+        logged_in_text.place(x = 0, y = 550)
+
+        logout_button = tk.Button(root, text = "Logout", command = logout, bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+        logout_button.place(x = SCREEN_WIDTH - BUTTON_WIDTH - 10, y = 500, width = BUTTON_WIDTH, height = 75)
 
 def login_or_add_account_screen():
 
@@ -360,7 +389,7 @@ def add_account_screen():
     login_button.place(x = SCREEN_WIDTH // 2 - 100, y = 250)
 
 def add_account(username, password):
-    global logged_in
+    global logged_in, account
     account = username.get().strip()
     password = password.get().strip()
 
@@ -375,7 +404,7 @@ def add_account(username, password):
     home_screen()
 
 def login(username, password):
-    global logged_in
+    global logged_in, account
     try: error_text.destroy()
     except: pass
 
@@ -392,6 +421,7 @@ def login(username, password):
     try:    
         if accounts[username] == password:
             logged_in = True
+            account = username
             home_screen()
         else:
             error_text = tk.Label(root, text = "Incorect Password", font = ("Inter", 15, "bold"), bg = BACKGROUND_COLOR, fg = "white")
@@ -401,6 +431,35 @@ def login(username, password):
         error_text.place(x = 0, y = 450, width = SCREEN_WIDTH)
     
 def check_login():
+    pass
+
+def logout():
+    global logged_in, account
+    logged_in = False
+    account = None
+    home_screen()
+
+def click(event):
+    selected_index = password_list.curselection()
+    if not selected_index:
+        return
+
+    selected_text = password_list.get(selected_index[0])
+    site = selected_text.split(" | ")[0].replace("Website: ", "")
+
+    username = passwords[account][site]["username"]
+    password = passwords[account][site]["password"]
+
+    copy_username_button = tk.Button(root, text = "Copy Username", command = lambda: copy_to_clipboard(username), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+    copy_username_button.place(x = 50, y = 550, width = BUTTON_WIDTH, height = 75)
+
+    copy_password_button = tk.Button(root, text = "Copy Password", command = lambda: copy_to_clipboard(password), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+    copy_password_button.place(x= 275, y = 550, width = BUTTON_WIDTH, height = 75)
+
+    delete_button = tk.Button(root, text = "Delete", command = lambda: delete(site), bg = BUTTON_COLOR, activebackground = ACTIVE_BUTTON_COLOR, font = ("Inter", 20, "bold"))
+    delete_button.place(x= 500, y = 550, width = BUTTON_WIDTH, height = 75)
+
+def delete(website):
     pass
 
 home_screen()
